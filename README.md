@@ -102,7 +102,7 @@ To use these colors, assign them in a *color-pair*. You can create a color-pair 
 The color-pair 0 is defined as the default color pair, so you should pick a pair > 1. To use a color attribute, use the 
 `with-attributes` macro with a call to `(color-pair <id>)`.
 
-To get the default colors used by your terminal, make invoke `(use-default-colors)`
+To get the default colors used by your terminal, invoke `(use-default-colors)`
 
 ### Example
 
