@@ -33,7 +33,7 @@ Windows are created using the `new-win` function. Recall that windows __are not_
 we provide no safegaurds against this. Don't do it.
 
 All of the functions that you use to set attributes (primarily done with the `with-attributes` macro, more on that later...) 
-modify the default window (`stdscr`, or from the C library, `stdscr`). However, if you use the macro `with-window`,
+modify the default window (`*stdscr*`). However, if you use the macro `with-window`,
 the window you provide will be modifed. 
 
 ### Example
