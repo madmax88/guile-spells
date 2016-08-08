@@ -33,7 +33,7 @@ Windows are created using the `new-win` function. Recall that windows __are not_
 we provide no safegaurds against this. Don't do it.
 
 All of the functions that you use to set attributes (primarily done with the `with-attributes` macro, more on that later...) 
-modify the default window (\*stdscr\*, or from the C library, stdscr). However, if you use the macro `with-window`,
+modify the default window (`stdscr`, or from the C library, `stdscr`). However, if you use the macro `with-window`,
 the window you provide will be modifed. 
 
 ### Example
@@ -48,7 +48,7 @@ the actions on windows.
     (define say-hi (name)
       (format "Hi, ~a!" name))
       
-    (with-window *stdscrn*
+    (with-window *stdscr*
       (say-hi "world"))
       
 In this example you can call say-hi in any `with-window` body and have the output formatted to the correct window.
