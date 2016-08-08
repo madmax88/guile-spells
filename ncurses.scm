@@ -6,15 +6,15 @@
             test
             endwin
             keypad
-            noecho
+            no-echo
             new-win
             refresh
             delete-window
             move-cursor
             getch
             format
-            screen
-            fetch-current-screen
+            window
+            fetch-current-window
             with-window
             color-pair
             init-color-pair
@@ -46,7 +46,7 @@
 
 ;;; dynamic link to the curses library
 (define ncurses (dynamic-link "libncurses"))
-(define screen #f)                      ; indicates we're in a with-screen body
+(define window (make-fluid #f)) ; indicates we're in a with-screen body
 (define *stdscr* '())
 
 ;;;; constants from ncurses.h
@@ -101,11 +101,10 @@
     ((*key-enter*) 'key-enter)
     (else (integer->char key))))
 
-(define-syntax fetch-current-screen
-  (lambda (x)
-    (syntax-case x ()
-      ((_) (with-syntax ((screen (datum->syntax x 'screen)))
-             #'(if screen screen *stdscr*))))))
+(define (fetch-current-window)
+  (if (fluid-ref window)
+      (fluid-ref window)
+      *stdscr*))
 
 ;;; Perhaps the most fundamental macro: with-window
 ;;; In curses, every operation happens on a window.
@@ -114,12 +113,12 @@
 ;;; like with (with-window my-window (format "Hello, world! ~%")) the operations
 ;;; will be performed on my-window.
 (define-syntax with-window
-  (lambda (x)
-    (syntax-case x ()
-      ((_ screen-pointer body ...) (with-syntax ((screen (datum->syntax x 'screen)))
-                                     #`(let ((screen screen-pointer))
-                                         (begin body ...)))))))
-
+  (syntax-rules ()
+    ((_ win body ...) (let ((old-window (fetch-current-window)))
+                           (begin (fluid-set!  window win)
+                                  body ...
+                                  (fluid-set! window old-window))))))
+  
 ;;; initialize the curses screen
 ;;; This must be called BEFORE any other routine can be used.
 (define (initscr)
@@ -134,7 +133,7 @@
 (define (cbreak) (dynamic-call "cbreak" ncurses))
 
 ;;; turns off echoing of keyboard
-(define (noecho) (dynamic-call "noecho" ncurses))
+(define (no-echo) (dynamic-call "noecho" ncurses))
 
 ;;; allows color to be used
 (define (start-color) (dynamic-call "start_color" ncurses))
@@ -144,11 +143,11 @@
   ((pointer->procedure void
                        (dynamic-func "keypad" ncurses)
                        (list '* int))
-   (fetch-current-screen)
+   (fetch-current-window)
    (if bool 1 0)))
 
 ;;; creates a new window w/ specified parameters
-(define (new-win height width y0 x0)
+(define (new-win width height x0 y0)
   ((pointer->procedure '*
                        (dynamic-func "newwin" ncurses)
                        (list int int int int))
@@ -160,28 +159,28 @@
   ((pointer->procedure void
                        (dynamic-func "wrefresh" ncurses)
                        (list '*))
-   (fetch-current-screen)))
+   (fetch-current-window)))
 
 ;;; deletes the given window
 (define (delete-window window)
   ((pointer->procedure void
                        (dynamic-func "delwin" ncurses)
                        (list '*))
-   (fetch-current-screen)))
+   (fetch-current-window)))
 
 ;;; moves the cursor to the appropriate position
 (define* (move-cursor x y)
   ((pointer->procedure void
                        (dynamic-func "wmove" ncurses)
                        (list '* int int))
-   (fetch-current-screen) y x))
+   (fetch-current-window) y x))
 
 ;;; returns a single character of input
 (define (getch)
   (parse-key ((pointer->procedure int
                                   (dynamic-func "getch" ncurses)
                                   (list '*))
-              (fetch-current-screen))))
+              (fetch-current-window))))
 
 (define (displayer format-str rest)
   (apply guile/format `(#f ,format-str ,@rest)))
@@ -193,7 +192,7 @@
   ((pointer->procedure int
                        (dynamic-func "waddstr" ncurses)
                        (list '* '*))
-   (fetch-current-screen)
+   (fetch-current-window)
    (string->pointer (displayer format-str rest))))
 
 ;;; adds the given attribute to the active window
@@ -201,14 +200,14 @@
   ((pointer->procedure int
                        (dynamic-func "wattron" ncurses)
                        (list '* int))
-   (fetch-current-screen) attribute))
+   (fetch-current-window) attribute))
 
 ;;; removes the given attribute
 (define (window-attribute-off attribute)
   ((pointer->procedure int
                        (dynamic-func "wattroff" ncurses)
                        (list '* int))
-   (fetch-current-screen) attribute))
+   (fetch-current-window) attribute))
 
 ;;; sets the given attributes to on, performs the body, then cleans up.
 (define-syntax with-attributes

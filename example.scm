@@ -10,16 +10,37 @@
   (ncurses/format "Number of lines: ~a~%" (ncurses/lines))
   (ncurses/format "Number of columns: ~a~%" (ncurses/columns))
   (ncurses/format "Change color? ~a~%" (ncurses/change-color?))
-  (ncurses/getch))
+  (ncurses/refresh))
 
 (ncurses/initscr)
 (ncurses/start-color)
 (ncurses/use-default-colors)
-(ncurses/make-color 40 #:red 999 #:green 0 #:blue 0)
+(ncurses/no-echo)
 
+(ncurses/make-color 40 #:red 999 #:green 0 #:blue 0)
+(ncurses/init-color-pair 10 #:forground 40  #:background 0)
+
+;;; Define two testing windows
+(define my-window (ncurses/new-win (floor (/ (ncurses/columns) 2))
+                                   (floor (/ (ncurses/lines) 2))
+                                   0
+                                   0))
+
+(define my-window-2 (ncurses/new-win (floor (/ (ncurses/columns) 2))
+                                     (floor (/ (ncurses/lines) 2))
+                                     (floor (/ (ncurses/columns) 2))
+                                     0))
+
+;;; You must refresh to see the windows
 (ncurses/refresh)
 
-(ncurses/init-color-pair 10 #:forground 40  #:background 0)
-(example)
+;;; The display code is agnostic of window
+;;; We can specify any window, and the display logic will work.
+(ncurses/with-window my-window
+                     (example))
 
+(ncurses/with-window my-window-2
+                     (example))
+
+(ncurses/getch)
 (ncurses/endwin)
