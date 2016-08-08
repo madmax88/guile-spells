@@ -18,18 +18,18 @@
 (ncurses/no-echo)
 
 (ncurses/make-color 40 #:red 999 #:green 0 #:blue 0)
-(ncurses/init-color-pair 10 #:forground 40  #:background 0)
+(ncurses/make-color-pair 10 #:forground 40  #:background 0)
 
 ;;; Define two testing windows
-(define my-window (ncurses/new-win (floor (/ (ncurses/columns) 2))
-                                   (floor (/ (ncurses/lines) 2))
-                                   0
-                                   0))
+(define my-window (ncurses/new-window (floor (/ (ncurses/columns) 2))
+                                      (floor (/ (ncurses/lines) 2))
+                                      0
+                                      0))
 
-(define my-window-2 (ncurses/new-win (floor (/ (ncurses/columns) 2))
-                                     (floor (/ (ncurses/lines) 2))
-                                     (floor (/ (ncurses/columns) 2))
-                                     0))
+(define my-window-2 (ncurses/new-window (floor (/ (ncurses/columns) 2))
+                                        (floor (/ (ncurses/lines) 2))
+                                        (floor (/ (ncurses/columns) 2))
+                                        0))
 
 ;;; You must refresh to see the windows
 (ncurses/refresh)

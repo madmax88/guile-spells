@@ -7,7 +7,7 @@
             endwin
             keypad
             no-echo
-            new-win
+            new-window
             refresh
             delete-window
             move-cursor
@@ -17,7 +17,7 @@
             fetch-current-window
             with-window
             color-pair
-            init-color-pair
+            make-color-pair
             *stdscr*
             with-attributes
             window-attribute-on
@@ -147,7 +147,7 @@
    (if bool 1 0)))
 
 ;;; creates a new window w/ specified parameters
-(define (new-win width height x0 y0)
+(define (new-window width height x0 y0)
   ((pointer->procedure '*
                        (dynamic-func "newwin" ncurses)
                        (list int int int int))
@@ -235,7 +235,7 @@
                        (sizeof int)))
 
 ;;; initializes the color pair
-(define* (init-color-pair pair-id #:key forground background)
+(define* (make-color-pair pair-id #:key forground background)
   ((pointer->procedure int
                        (dynamic-func "init_pair" ncurses)
                        (list short short short)) pair-id forground background))
