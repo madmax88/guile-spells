@@ -78,11 +78,11 @@ terminal driver from buffering input, call `cbreak`.
 
 ## Cursor
 
-The cursor can be moved by invoking `(cursor-move x y`.
+The cursor can be moved by invoking `(cursor-move x y)`.
 
 ### Example
 
-(cursor-move 0 0)
+    (cursor-move 0 0)
 
 ## Colors
 
