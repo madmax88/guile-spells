@@ -34,7 +34,8 @@ we provide no safegaurds against this. Don't do it.
 
 All of the functions that you use to set attributes (primarily done with the `with-attributes` macro, more on that later...) 
 modify the default window (`*stdscr*`). However, if you use the macro `with-window`,
-the window you provide will be modifed. 
+the window you provide will be modifed. All of the ncurses functions that have analogous functions that perform on specific windows
+will use the `with-window` specified window during their execution.
 
 ### Example
 
@@ -55,7 +56,7 @@ In this example you can call say-hi in any `with-window` body and have the outpu
         
 ## Attributes
 
-A number of attributes are provided, including:
+Most of ncurses' attributes for text appearance are provided, including:
   * \*standout\* - highlight output
   * \*underline\* - underline output
   * \*reverse\* - swap the forground and background colors
@@ -72,7 +73,16 @@ In general, use the `with-attributes` macro to toggle these on and off.
 ## Input 
 
 Input can be obtained character-by-character using the `getch` function. To prevent echoing of the character,
-call `no-echo`. To allow for the user to input special characters, invoke `(keypad #t)`. 
+call `no-echo`. To allow for the user to input special characters, invoke `(keypad #t)`. To prevent the 
+terminal driver from buffering input, call `cbreak`. 
+
+## Cursor
+
+The cursor can be moved by invoking `(cursor-move x y`.
+
+### Example
+
+(cursor-move 0 0)
 
 ## Colors
 
